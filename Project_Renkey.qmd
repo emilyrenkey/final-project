@@ -1,0 +1,199 @@
+---
+title: "Is allogrooming associated with immune health in a facultatively social mammal?"
+author: "Emily Renkey"
+date: 20 November 2026
+format:
+  html:
+    embed-resources: true
+    toc: true
+    code-fold: show
+bibliography: references.bib
+---
+
+<!--
+HOW TO USE THIS TEMPLATE
+
+1. Fill in the box below before you analyze anything.
+2. Work through the sections in order. Each section starts with a comment
+   saying what goes there and how many points it is worth. Delete each
+   comment when you have done what it asks.
+3. Restart R and Render often.
+
+
+data/README.md explains every column and its units. references.bib already
+has the papers and datasets for all six questions; cite them with [@key].
+Bringing your own data? Put the file in data/ and describe it in
+data/README.md.
+
+Two parts are graded on the project as a whole:
+Report (4 points): renders after Restart R, refers to figures and the table
+with @fig- and @tbl-, cites at least two sources, and has renv.lock.
+GitHub (4 points): a repository with a README, a .gitignore, and at least
+one pushed commit; put the link in the box below.
+
+The template contains no analysis code: every function and figure is yours.
+-->
+
+```{r}
+#| label: setup
+#| message: false
+library(tidyverse)
+library(tictoc)
+library(tidylog)
+
+# load package managed by The Marmot Project to export data to .csv for accessibility
+library(ybamaRmot)
+blood_smears <- ybamaRmot::tb_bloodcount
+write_csv(blood_smears, "blood_smears.csv")
+
+```
+
+::: {.callout-note}
+## My question
+
+Route (menu, reproduce, or my own; for the menu, which question):
+
+*Question*: Is allogrooming associated with immune health in a facultatively social mammal?
+
+*Background and Prediction*: Allogrooming is an affiliative social behavior where animals clean one another to facilitate social bonding [@RAULT2019113]. In multiple rodent species, distressed animals exhibit fewer anxiety-like behaviors after receiving allogrooming [@LIM2023105391]. In primates, receiving grooming has shown to reduce stress through lowering heart rate and releasing opioids in the blood, and decreasing stress related behaviors [@YATES2022104740]. Low levels of maternal licking and grooming alter the stress-response of their offspring, leading to heightened stress reactivity and more anxious or fearful behavior in adulthood [@PETELLE201786]. Quantification of leukocyte profiles is a common measure of immunocompetence. Lymphocytes and neutrophils are the two most abundant types of white blood cells found in the immune system of mammals. Neutrophils increase and/or lymphocytes decrease in response to chronic stress through the elevation of glucocorticoids (GCs) [@MARTIN200970]. Because of this, neutrophil to lymphocyte ratios (NLR) often serves as a marker of chronic stress due to the delay between exposure of a stressor and the blood cell response. I hypothesize there will be a negative relationship between allogrooming and neutrophil to lymphocyte ratios (NLR), where individuals with a lower NLR give and receive allogrooming more than individuals with a high NLR. Alternatively, this relationship may nonlinear, as allogrooming could function as a self-soothing behavior, meaning there is a chance individuals engaging in this behavior more are using it as a coping mechanism from undergoing more stressful situations, so individuals who give and receive more allogrooming have a higher NLR.    
+
+GitHub repository link:
+:::
+
+# Question
+
+<!--
+QUESTION (4 points), in one or two paragraphs:
+
+- Why would a biologist want to know the answer? 
+- Where do the data come from? Cite the paper and the data, for example
+  [@donihue2018; @donihue2019data].
+- What is one row, and what are the units of the variables you use?
+
+-->
+
+
+
+# Data
+
+<!--
+DATA (4 points): read your file(s) from data/ with a relative path, check for
+missing values (say what you do with them and why), and build your analysis
+table with the tidyverse.
+-->
+
+```{r}
+#| label: data
+blood_smears <- read_csv("data/blood_smears.csv")
+
+```
+
+<!--
+FIGURES (4 points, shared with Figure 2 below): Figure 1 shows the data behind
+your question. Axis labels with units, a caption, and colors that work for
+color-blind readers. Refer to it in the text as @fig-data.
+-->
+
+```{r}
+#| label: fig-data
+#| fig-cap: "Replace with a caption that says what the figure shows."
+
+```
+
+# Measurement
+
+<!--
+MEASUREMENT (6 points):
+1. Write measure(): one dataset in, one number out (a statistic, such as a
+   difference in means or a slope). Put a comment above it saying what goes
+   in and what comes out.
+2. Check it on a tiny tibble you can work out by hand.
+3. Nest your data by group (at least two groups) and map_vec() measure()
+   over the groups. These are your observed numbers.
+4. In one or two sentences below, say why you chose this number and how it
+   answers your question.
+-->
+
+Why this number:
+
+```{r}
+#| label: measure
+
+```
+
+```{r}
+#| label: measure-check
+
+```
+
+```{r}
+#| label: observed
+
+```
+
+# Possible worlds
+
+<!--
+POSSIBLE WORLDS (10 points):
+1. Before any code, write two or three sentences below: how you build your
+   worlds and why. Are you asking "how much could my number move?"
+   (bootstrap, which gives an interval) or "could chance alone produce it?"
+   (shuffle, which gives a p-value)? What do you resample or shuffle, and
+   within which groups, so the worlds match how the data were collected?
+2. Write make_world(), plan the runs with expand_grid() (at least 100),
+   call set.seed() once before the batch, build the worlds with map(), and
+   measure them with map_vec().
+3. Put tic() before the simulation and toc() after it, and report the total
+   time.
+4. Show one world next to the real data before you trust them all.
+-->
+
+How I build my worlds, and why:
+
+```{r}
+#| label: worlds
+
+```
+
+```{r}
+#| label: one-world
+
+```
+
+<!--
+Figure 2: the simulated numbers with your observed number marked. Refer to it
+as @fig-worlds.
+-->
+
+```{r}
+#| label: fig-worlds
+#| fig-cap: "Replace with a caption that says what the figure shows."
+
+```
+
+# Answer
+
+<!--
+ANSWER (4 points):
+- The answer to your question, with numbers from your possible worlds
+  (summarize them in a table, @tbl-worlds).
+- Your interpretation: what does it mean, and how does it compare with your
+  prediction?
+- One limitation and one next step.
+At least 500 words for the whole report, and at least two figures.
+-->
+
+```{r}
+#| label: tbl-worlds
+#| tbl-cap: "Replace with a caption for your results table."
+
+```
+
+# Code authorship
+
+All code in this report is my own. I did not use AI for any part of this project. <!-- Name anyone who helped. -->
+
+# References
+
+::: {#refs}
+:::
