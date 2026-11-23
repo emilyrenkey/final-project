@@ -43,15 +43,21 @@ library(tidylog)
 
 # load package managed by The Marmot Project to export data to .csv for accessibility
 library(ybamaRmot)
-blood_smears <- ybamaRmot::tb_bloodcount
-write_csv(blood_smears, "blood_smears.csv")
+# load and export blood smear data
+blood_raw <- ybamaRmot::tb_bloodcount |>
+  subset(useful_smear == "1")
+write_csv(blood_raw, "blood_raw.csv")
+# load and export all social data on allogrooming 
+allogroom_raw <- ybamaRmot::tb_socint |>
+  subset(interac_type == "allogroom")
+write_csv(allogroom_raw, "allogroom_raw.csv")
 
 ```
 
 ::: {.callout-note}
 ## My question
 
-Route (menu, reproduce, or my own; for the menu, which question):
+*Route*: My own, using data from The Marmot Project [@ybamaRmot]
 
 *Question*: Is allogrooming associated with immune health in a facultatively social mammal?
 
@@ -84,7 +90,28 @@ table with the tidyverse.
 
 ```{r}
 #| label: data
-blood_smears <- read_csv("data/blood_smears.csv")
+
+# load datasets 
+blood_raw <- read_csv("data/blood_raw.csv")
+allogroom_raw <- read_csv("data/allogroom_raw.csv")
+
+# clean blood dataset and calculate NLR
+blood_cleaned <- blood_raw |>
+  subset(useful_smear = 1) |>
+  separate_wider_delim(  # separate date, time, and uid into three columns
+    cols = date_time_uid,
+    delim = ".",
+    names = c("date", "time", "uid") 
+  ) |>
+  mutate(date = lubridate::mdy(date), # change to date
+         year = lubridate::year(date)) |> #add year column
+  mutate(NLR = neutrophils/lymphocytes) |> #calculate NLR
+  select(year, date, uid, neutrophils, lymphocytes, trypanosomes, NLR)
+
+# clean allogroom dataset and calculate total allogrooms
+
+allogroom_cleaned <- allogroom_raw |>
+  
 
 ```
 
