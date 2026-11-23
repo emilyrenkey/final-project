@@ -49,9 +49,19 @@ blood_raw <- ybamaRmot::tb_bloodcount |>
 write_csv(blood_raw, "blood_raw.csv")
 # load and export all social data on allogrooming 
 allogroom_raw <- ybamaRmot::tb_socint |>
-  subset(interac_type == "allogroom")
-write_csv(allogroom_raw, "allogroom_raw.csv")
+  subset(interac_type == "allogroom") # chose not to take out obs with "initiator unknown" since for allogrooming this seems like a product of us not keeping track of that and no obs before 2021 have initiator known. 
+write_csv(allogroom_raw, "allogroom_raw.csv") 
 
+#calculate each marmot’s age in each year from function in marmot package.
+surv_data <- ybamaRmot::tb_annualid |>
+  mutate(
+    age      = ybamaRmot::fn_age(ybamaRmot::tb_annualid),
+    year     = as.numeric(year),
+    year_uid = as.factor(paste(year, uid, sep = "_"))
+  ) |>
+  merge(tb_colony, by = "col_area") |>
+  select(year_uid, uid, colony, age)
+write_csv(surv_data, "surv_data.csv")
 ```
 
 ::: {.callout-note}
@@ -94,6 +104,7 @@ table with the tidyverse.
 # load datasets 
 blood_raw <- read_csv("data/blood_raw.csv")
 allogroom_raw <- read_csv("data/allogroom_raw.csv")
+surv_data <- read_csv("data/surv_data.csv")
 
 # clean blood dataset and calculate NLR
 blood_cleaned <- blood_raw |>
@@ -104,15 +115,54 @@ blood_cleaned <- blood_raw |>
     names = c("date", "time", "uid") 
   ) |>
   mutate(date = lubridate::mdy(date), # change to date
-         year = lubridate::year(date)) |> #add year column
-  mutate(NLR = neutrophils/lymphocytes) |> #calculate NLR
-  select(year, date, uid, neutrophils, lymphocytes, trypanosomes, NLR)
+         year = lubridate::year(date),  #add year column
+         NLR = neutrophils/lymphocytes, #calculate NLR
+         year_uid = as.factor(paste(year, uid, sep =
+                                      "_"))) |> 
+  select(year_uid, year, date, neutrophils, lymphocytes, trypanosomes, NLR)
 
 # clean allogroom dataset and calculate total allogrooms
 
-allogroom_cleaned <- allogroom_raw |>
-  
+# pivot_longer to create a column for UID and assign marmots a status for whether they initiated or received allogrooming
 
+allogroom_cleaned <- allogroom_raw |>
+  select(year, date, col_area, uid_ini, uid_rec) |>
+  pivot_longer(
+    cols = c(uid_ini, uid_rec),
+    names_to = "role",
+    values_to = "uid"
+  ) |>
+  mutate(role = recode(role, uid_ini = 'initiated_grooming',
+                       uid_rec = 'received_grooming'),
+         year_uid = as.factor(paste(year, uid, sep =
+                                      "_"))
+         )
+  
+# create new df with columns with year_uid, date, col_area, # initiated_allogroom, # received_allogroom, # total_interactions
+
+allogrooms_per_year <- allogroom_cleaned |>
+  filter(!is.na(uid)) |> # remove rows where uid is unknown
+  group_by(year_uid, role) |>
+  summarise(n = n(), .groups = "drop") |> # get a count for each UID/yr ini and rec
+  pivot_wider(
+    names_from = "role",
+    values_from = "n",
+    values_fill = 0
+  ) |>
+  mutate(total_allogrooms = initiated_grooming + received_grooming) |> # create new column for total allogrooms 
+  ungroup()
+
+# left_join 'blood_cleaned' with 'allogrooms_per_year' to add allogrooming data on to all blood smear data 
+
+allogroom_NLR <- left_join(blood_cleaned, allogrooms_per_year, by = "year_uid")
+allogroom_NLR_full <- inner_join(allogroom_NLR, surv_data, by = "year_uid")
+
+# replace 'NA' with zeros for received, initiated and total allogrooms
+allogroom_NLR_full <- allogroom_NLR_full |>
+  mutate(across(c(received_grooming, 
+                  initiated_grooming, 
+                  total_allogrooms),
+                  ~ replace_na(.x, 0)))
 ```
 
 <!--
@@ -124,6 +174,13 @@ color-blind readers. Refer to it in the text as @fig-data.
 ```{r}
 #| label: fig-data
 #| fig-cap: "Replace with a caption that says what the figure shows."
+
+
+# Time spent allogrooming versus time spent receiving allogrooming 
+
+
+
+# NLR versus total allogroom
 
 ```
 
